@@ -55,7 +55,38 @@ app.get("/testdb", (req, res) => {
 
   //Create a MongoDB client, open a connection to Amazon DocumentDB as a replica set,
   //  and specify the read preference as secondary preferred
+  var client = MongoClient.connect(
+    "mongodb://awsadmin:admin123@docdb-2021-04-25-11-14-26.cekrf1qibe4r.us-east-1.docdb.amazonaws.com/sample-database?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false",
+    {
+      useUnifiedTopology: true,
+      sslValidate: true,
+      sslCA: ca,
+      useNewUrlParser: true,
+    },
+    function (err, client) {
+      if (err) throw err;
 
+      //Specify the database to be used
+      db = client.db("sample-database");
+
+      //Specify the collection to be used
+      col = db.collection("sample-collection");
+
+      //Insert a single document
+      col.insertOne({ hello: "Amazon DocumentDB" }, function (err, result) {
+        //Find the document that was previously written
+        col.findOne({ hello: "Amazon DocumentDB" }, function (err, result) {
+          //Print the result to the screen
+          console.log(result);
+
+          //Close the connection
+          client.close();
+        });
+      });
+    }
+  );
+
+  res.send("Done")
 });
 
 app.get("/", function (req, res) {
