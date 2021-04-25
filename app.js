@@ -24,6 +24,7 @@ app.get("/testdb", (req, res) => {
   var client = MongoClient.connect(
     "mongodb://awsadmin:admin123@docdb-2021-04-25-11-14-26.cekrf1qibe4r.us-east-1.docdb.amazonaws.com/sample-database?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false",
     {
+      useUnifiedTopology: true,
       sslValidate: true,
       sslCA: ca,
       useNewUrlParser: true,
