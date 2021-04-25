@@ -1,0 +1,32 @@
+<%-include("header")-%>
+
+    <% if(myday === "SATURDAY" || myday === "SUNDAY"){ %>
+        <div class="box" id="heading">
+            <h1 style="color:purple"><%= myday%> !!!!</h1>
+        </div>
+
+    <% }else{ %>
+      <div class="box" id="heading">
+          <h1 style="color:purple"><%= myday%> !!!!</h1>
+      </div>
+    <% } %>
+
+    <div class="box">
+
+      <% for(var i=0;i<newListIems.length;i++){ %>
+        <div class="item">
+
+          <input type="checkbox">
+          <p><%= newListIems[i] %></p>
+
+        </div>
+
+      <% } %>
+
+      <form class="item" action="/" method="post">
+        <input type="text" name="NextItem">
+        <button type="submit" name="list" value=<%= myday %>>+</button>
+
+      </form>
+    </div>
+  <%-include("footer")-%>
