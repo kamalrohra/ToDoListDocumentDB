@@ -51,6 +51,8 @@ app.get("/testdb", (req, res) => {
       });
     }
   );
+
+  res.send("Done")
 });
 
 app.get("/", function (req, res) {
