@@ -1,49 +1,79 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require("express");
+const bodyParser = require("body-parser");
 const app = express();
 
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(express.static("public"))
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
 var today = new Date();
 var day = "";
-var items = ["food","clothes","bla"];
-var workitems = ["hw","ps","js"];
+var items = ["food", "clothes", "bla"];
+var workitems = ["hw", "ps", "js"];
 
+app.get("/testdb", (req, res) => {
+  var MongoClient = require("mongodb").MongoClient,
+    f = require("util").format,
+    fs = require("fs");
 
+  //Specify the Amazon DocumentDB cert
+  var ca = [fs.readFileSync("rds-combined-ca-bundle.pem")];
 
+  //Create a MongoDB client, open a connection to Amazon DocumentDB as a replica set,
+  //  and specify the read preference as secondary preferred
+  var client = MongoClient.connect(
+    "mongodb://awsadmin:admin123@arn:aws:rds:us-east-1:538914516668:cluster:docdb-2021-04-25-11-14-26/sample-database?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false",
+    {
+      sslValidate: true,
+      sslCA: ca,
+      useNewUrlParser: true,
+    },
+    function (err, client) {
+      if (err) throw err;
 
-app.get("/", function(req, res) {
-  var options = {  weekday: 'long', year: 'numeric', month: 'long'}
-  day = today.toLocaleString('en-us',options);
-  res.render('list',{myday:day , newListIems:items});
+      //Specify the database to be used
+      db = client.db("sample-database");
 
+      //Specify the collection to be used
+      col = db.collection("sample-collection");
+
+      //Insert a single document
+      col.insertOne({ hello: "Amazon DocumentDB" }, function (err, result) {
+        //Find the document that was previously written
+        col.findOne({ hello: "Amazon DocumentDB" }, function (err, result) {
+          //Print the result to the screen
+          console.log(result);
+
+          //Close the connection
+          client.close();
+        });
+      });
+    }
+  );
 });
 
-app.get("/work",function(req,res){
+app.get("/", function (req, res) {
+  var options = { weekday: "long", year: "numeric", month: "long" };
+  day = today.toLocaleString("en-us", options);
+  res.render("list", { myday: day, newListIems: items });
+});
+
+app.get("/work", function (req, res) {
   day = "work";
-  res.render('list',{myday:day , newListIems:workitems})
+  res.render("list", { myday: day, newListIems: workitems });
+});
 
-  });
-
-app.post("/",function(req,res){
+app.post("/", function (req, res) {
   var item = req.body.NextItem;
-  if(req.body.list ==="work"){
+  if (req.body.list === "work") {
     workitems.push(item);
     res.redirect("/work");
-  }else{
+  } else {
     items.push(item);
-    res.redirect("/")
+    res.redirect("/");
   }
-
-
-
 });
 
-
-
-
-app.listen(3000, function() {
+app.listen(3000, function () {
   console.log("port running on 3000");
 });
